@@ -1,477 +1,81 @@
 <!doctype html>
 <html lang="vi">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Chia tiền bạn bè</title>
-  <meta name="description"
-    content="Web chia tiền giữa bạn bè – chạy trên GitHub Pages, lưu cục bộ bằng LocalStorage. Viết thuần HTML/CSS/JS." />
+  <meta name="description" content="Web chia tiền giữa bạn bè – chạy trên GitHub Pages, lưu cục bộ bằng LocalStorage. Viết thuần HTML/CSS/JS." />
   <style>
-    :root {
-      --bg: #ffffff;
-      --panel: #f7faf7;
-      --soft: #d9e7db;
-      --text: #1b1f1c;
-      --muted: #5b6b5e;
-      --accent: #31c36a;
-      --accent-2: #22a455;
-      --error: #e03131;
-      --shadow: 0 6px 18px rgba(0, 0, 0, .06);
-      --radius: 14px;
+    :root { --bg:#ffffff; --panel:#f7faf7; --soft:#d9e7db; --text:#1b1f1c; --muted:#5b6b5e; --accent:#31c36a; --accent-2:#22a455; --error:#e03131; --shadow:0 6px 18px rgba(0,0,0,.06); --radius:14px; }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .brand{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .logo{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#e8f8ee,#f6fff9);border:1px solid var(--soft);box-shadow:var(--shadow)}
+    .logo svg{width:20px;height:20px;fill:var(--accent)}
+    h1{font-size:18px;margin:0}
+    .hint{color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:1fr;gap:14px}
+    @media (min-width:768px){ .grid{grid-template-columns:1fr 1fr} }
+    .card{background:var(--panel);border:1px solid var(--soft);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+    .card h2{font-size:15px;margin:0 0 6px}
+    .card p.caption{margin:0 0 10px;color:var(--muted);font-size:13px}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+    .input, select{appearance:none;border:1px solid var(--soft);background:#fff;border-radius:10px;padding:9px 12px;font:inherit;color:var(--text);width:100%}
+    .input:focus, select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(49,195,106,.15)}
+    .btn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:10px;padding:9px 12px;font:inherit;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+    .btn.secondary{background:#fff;color:var(--accent);border-color:var(--accent)}
+    .btn.danger{background:#fff;color:var(--error);border-color:var(--error)}
+    .btn:disabled{opacity:.5;cursor:not-allowed} .btn:hover{filter:brightness(.98)}
+    .friend-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+    .chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--soft);border-radius:999px;padding:5px 9px;font-size:13px}
+    .chip .x{cursor:pointer;opacity:.6}.chip .x:hover{opacity:1}
+    .form-row{display:flex;flex-direction:column;gap:8px}
+    @media (min-width:500px){ .form-row{flex-direction:row} }
+    .friend-select{display:flex;flex-wrap:wrap;gap:6px}
+    .friend-select label{border:1px dashed var(--soft);padding:6px 8px;border-radius:8px;background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:13px}
+    .friend-select input{accent-color:var(--accent)}
+    .items{display:grid;gap:8px;margin-top:8px}
+    .item{border:1px solid var(--soft);background:#fff;border-radius:10px;padding:10px;font-size:14px}
+    .item-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;align-items:center}
+    .item-name{font-weight:600} .item-amount{color:var(--accent-2);font-weight:600}
+    .item-actions{display:flex;gap:6px;margin-top:6px}
+    .muted{color:var(--muted);font-size:13px}
+    .summary{width:100%;border-collapse:collapse;font-size:14px}
+    .summary th,.summary td{border-bottom:1px solid var(--soft);padding:8px;text-align:left}
+    .summary th.sortable{cursor:pointer;user-select:none}
+    .summary tfoot td{font-weight:700}
+    .footer{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;font-size:13px}
+    .save-state{font-size:12px;color:var(--muted)}
+    .empty{border:1px dashed var(--soft);border-radius:10px;padding:14px;text-align:center;color:var(--muted);font-size:13px}
+    .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#effaf4;color:var(--accent-2);border:1px solid var(--soft);font-size:12px}
+    .link{color:var(--accent-2);text-decoration:none;font-size:14px}
+    .btn{min-height:44px} .input,select,.chip-input{min-height:44px} input[type="checkbox"]{width:18px;height:18px}
+    .friend-select label{padding:10px 12px} .item-actions .btn{min-width:110px}
+    dialog .card{width:min(560px,92vw)}
+    @media (max-width:980px){ .grid{grid-template-columns:1fr} .grid>.card{grid-column:auto!important} }
+    @media (max-width:720px){
+      .wrap{padding:14px} header{flex-direction:column;align-items:flex-start;gap:6px}
+      .logo{width:34px;height:34px} h1{font-size:clamp(18px,4.6vw,20px)}
+      .card{padding:12px;border-radius:14px} .toolbar{gap:8px}
+      .toolbar .btn, .toolbar .input{flex:1} .form-row{grid-template-columns:1fr}
+      .item-top{flex-direction:column;align-items:flex-start} .item-amount{margin-top:6px}
+      .item-actions{flex-wrap:wrap} .item-actions .btn{flex:1}
+      .footer{position:sticky;bottom:0;left:0;right:0;padding-top:10px;background:var(--panel);border-top:1px solid var(--soft);border-bottom-left-radius:var(--radius);border-bottom-right-radius:var(--radius)}
+      .summary th,.summary td{padding:8px}
     }
-
-    * {
-      box-sizing: border-box
-    }
-
-    html,
-    body {
-      height: 100%
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
-    }
-
-    .wrap {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 16px
-    }
-
-    header {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px
-    }
-
-    .brand {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap
-    }
-
-    .logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, #e8f8ee, #f6fff9);
-      border: 1px solid var(--soft);
-      box-shadow: var(--shadow)
-    }
-
-    .logo svg {
-      width: 20px;
-      height: 20px;
-      fill: var(--accent)
-    }
-
-    h1 {
-      font-size: 18px;
-      margin: 0
-    }
-
-    .hint {
-      color: var(--muted);
-      font-size: 13px
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px
-    }
-
-    @media (min-width: 768px) {
-      .grid {
-        grid-template-columns: 1fr 1fr
-      }
-    }
-
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--soft);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px
-    }
-
-    .card h2 {
-      font-size: 15px;
-      margin: 0 0 6px
-    }
-
-    .card p.caption {
-      margin: 0 0 10px;
-      color: var(--muted);
-      font-size: 13px
-    }
-
-    .toolbar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap
-    }
-
-    .input,
-    select {
-      appearance: none;
-      border: 1px solid var(--soft);
-      background: #fff;
-      border-radius: 10px;
-      padding: 9px 12px;
-      font: inherit;
-      color: var(--text);
-      width: 100%
-    }
-
-    .input:focus,
-    select:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(49, 195, 106, .15)
-    }
-
-    .btn {
-      border: 1px solid var(--accent);
-      background: var(--accent);
-      color: #fff;
-      border-radius: 10px;
-      padding: 9px 12px;
-      font: inherit;
-      cursor: pointer;
-      transition: .15s;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px
-    }
-
-    .btn.secondary {
-      background: #fff;
-      color: var(--accent);
-      border-color: var(--accent)
-    }
-
-    .btn.danger {
-      background: #fff;
-      color: var(--error);
-      border-color: var(--error)
-    }
-
-    .btn:disabled {
-      opacity: .5;
-      cursor: not-allowed
-    }
-
-    .btn:hover {
-      filter: brightness(.98)
-    }
-
-    .friend-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 8px
-    }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #fff;
-      border: 1px solid var(--soft);
-      border-radius: 999px;
-      padding: 5px 9px;
-      font-size: 13px
-    }
-
-    .chip .x {
-      cursor: pointer;
-      opacity: .6
-    }
-
-    .chip .x:hover {
-      opacity: 1
-    }
-
-    .form-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px
-    }
-
-    @media (min-width: 500px) {
-      .form-row {
-        flex-direction: row
-      }
-    }
-
-    .friend-select {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px
-    }
-
-    .friend-select label {
-      border: 1px dashed var(--soft);
-      padding: 6px 8px;
-      border-radius: 8px;
-      background: #fff;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 13px
-    }
-
-    .friend-select input {
-      accent-color: var(--accent)
-    }
-
-    .items {
-      display: grid;
-      gap: 8px;
-      margin-top: 8px
-    }
-
-    .item {
-      border: 1px solid var(--soft);
-      background: #fff;
-      border-radius: 10px;
-      padding: 10px;
-      font-size: 14px
-    }
-
-    .item-top {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 6px;
-      align-items: center
-    }
-
-    .item-name {
-      font-weight: 600
-    }
-
-    .item-amount {
-      color: var(--accent-2);
-      font-weight: 600
-    }
-
-    .item-actions {
-      display: flex;
-      gap: 6px;
-      margin-top: 6px
-    }
-
-    .muted {
-      color: var(--muted);
-      font-size: 13px
-    }
-
-    .summary {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px
-    }
-
-    .summary th,
-    .summary td {
-      border-bottom: 1px solid var(--soft);
-      padding: 8px;
-      text-align: left
-    }
-
-    .summary th.sortable {
-      cursor: pointer;
-      user-select: none
-    }
-
-    .summary tfoot td {
-      font-weight: 700
-    }
-
-    .footer {
-      margin-top: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 13px
-    }
-
-    .save-state {
-      font-size: 12px;
-      color: var(--muted)
-    }
-
-    .empty {
-      border: 1px dashed var(--soft);
-      border-radius: 10px;
-      padding: 14px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: #effaf4;
-      color: var(--accent-2);
-      border: 1px solid var(--soft);
-      font-size: 12px
-    }
-
-    .link {
-      color: var(--accent-2);
-      text-decoration: none;
-      font-size: 14px
-    }
-
-    /* ===== Mobile-first refinements ===== */
-    .btn {
-      min-height: 44px
-    }
-
-    .input,
-    select,
-    .chip-input {
-      min-height: 44px
-    }
-
-    input[type="checkbox"] {
-      width: 18px;
-      height: 18px
-    }
-
-    .friend-select label {
-      padding: 10px 12px
-    }
-
-    .item-actions .btn {
-      min-width: 110px
-    }
-
-    dialog .card {
-      width: min(560px, 92vw)
-    }
-
-    @media (max-width:980px) {
-      .grid {
-        grid-template-columns: 1fr
-      }
-    }
-
-    @media (max-width:720px) {
-      .wrap {
-        padding: 14px
-      }
-
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px
-      }
-
-      .logo {
-        width: 34px;
-        height: 34px
-      }
-
-      h1 {
-        font-size: clamp(18px, 4.6vw, 20px)
-      }
-
-      .card {
-        padding: 12px;
-        border-radius: 14px
-      }
-
-      .toolbar {
-        gap: 8px
-      }
-
-      .toolbar .btn,
-      .toolbar .input {
-        flex: 1
-      }
-
-      .form-row {
-        grid-template-columns: 1fr
-      }
-
-      .item-top {
-        flex-direction: column;
-        align-items: flex-start
-      }
-
-      .item-amount {
-        margin-top: 6px
-      }
-
-      .item-actions {
-        flex-wrap: wrap
-      }
-
-      .item-actions .btn {
-        flex: 1
-      }
-
-      .footer {
-        position: sticky;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding-top: 10px;
-        background: var(--panel);
-        border-top: 1px solid var(--soft);
-        border-bottom-left-radius: var(--radius);
-        border-bottom-right-radius: var(--radius)
-      }
-
-      .summary th,
-      .summary td {
-        padding: 8px
-      }
-    }
-
-    /* Ép mobile hiển thị 1 cột theo đúng thứ tự DOM: 1,2,3,4 */
-    @media (max-width: 980px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      /* Ghi đè grid-column đang đặt inline ở mục (3) và (4) */
-      .grid>.card {
-        grid-column: auto !important;
-      }
-    }
+    /* Banner view-only */
+    .banner{display:none;margin:-6px 0 8px;padding:10px 12px;background:#e8fff1;border:1px solid #c9edd6;border-radius:12px}
+    .banner strong{color:#127a3a}
   </style>
 </head>
-
 <body>
   <div class="wrap">
     <header>
       <div class="brand">
         <div class="logo" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path
-              d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm4.93 7.36-5.66 5.66a1 1 0 0 1-1.41 0L7.07 12.83a1 1 0 0 1 1.41-1.41L10 12.94l4.95-4.95a1 1 0 1 1 1.41 1.41Z" />
-          </svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm4.93 7.36-5.66 5.66a1 1 0 0 1-1.41 0L7.07 12.83a1 1 0 0 1 1.41-1.41L10 12.94l4.95-4.95a1 1 0 1 1 1.41 1.41Z"/></svg>
         </div>
         <div>
           <h1>Chia tiền bạn bè</h1>
@@ -481,28 +85,36 @@
       <a class="link" href="#" id="howtoLink">Hướng dẫn</a>
     </header>
 
+    <!-- Banner chỉ xem -->
+    <div id="viewBanner" class="banner">
+      <strong>Đang ở chế độ CHỈ XEM.</strong>
+      <div class="toolbar" style="margin-top:6px">
+        <button id="shareCopyBtn2" class="btn secondary">Copy lại liên kết này</button>
+        <button id="adoptBtn" class="btn">Lưu bản này vào trình duyệt để chỉnh sửa</button>
+      </div>
+      <div class="muted" style="margin-top:4px">Mở từ liên kết #v=… • Bạn chỉ có thể xem & tạo QR, không thể sửa.</div>
+    </div>
+
     <div class="grid">
-      <!-- Cột trái: bạn bè + tạo mục -->
+      <!-- (1) Bạn bè -->
       <section class="card">
         <h2>1) Danh sách bạn bè</h2>
         <p class="caption">Thêm bạn một lần, sau đó chọn ai tham gia cho từng mục.</p>
         <div class="toolbar" style="margin-bottom:8px">
           <input id="friendName" class="input" placeholder="Tên bạn (ví dụ: An, Bình, Chi)" aria-label="Tên bạn" />
           <button id="addFriendBtn" class="btn" title="Thêm bạn" aria-label="Thêm bạn">+ Thêm</button>
-          <button id="clearAllBtn" class="btn danger" title="Xoá toàn bộ dữ liệu" aria-label="Xoá tất cả">Xoá tất
-            cả</button>
+          <button id="clearAllBtn" class="btn danger" title="Xoá toàn bộ dữ liệu" aria-label="Xoá tất cả">Xoá tất cả</button>
         </div>
         <div id="friends" class="friend-list" aria-live="polite"></div>
       </section>
 
+      <!-- (2) Tạo mục -->
       <section class="card">
         <h2>2) Mục chi tiêu</h2>
-        <p class="caption">Mỗi mục có tên, số tiền và danh sách người tham gia. Tiền sẽ được chia đều cho những người
-          được chọn.</p>
+        <p class="caption">Mỗi mục có tên, số tiền và danh sách người tham gia. Tiền sẽ được chia đều cho những người được chọn.</p>
         <div class="form-row">
           <input id="itemName" class="input" placeholder="Tên mục (vd: Lẩu, Cà phê, Taxi)" aria-label="Tên mục" />
-          <input id="itemAmount" class="input" type="number" inputmode="decimal" min="0" step="1000"
-            placeholder="Số tiền (VND)" aria-label="Số tiền VND" />
+          <input id="itemAmount" class="input" type="number" inputmode="decimal" min="0" step="1000" placeholder="Số tiền (VND)" aria-label="Số tiền VND" />
         </div>
         <div style="margin-top:10px">
           <div class="muted" style="margin-bottom:6px">Ai tham gia mục này?</div>
@@ -515,41 +127,62 @@
         </div>
       </section>
 
-      <!-- Cột trái dưới: danh sách mục -->
+      <!-- (3) Danh sách mục -->
       <section class="card" style="grid-column:1/2">
         <h2>3) Danh sách mục</h2>
         <div id="items" class="items"></div>
         <div id="itemsEmpty" class="empty" style="display:none">Chưa có mục nào. Hãy thêm mục ở khung bên phải.</div>
       </section>
 
-      <!-- Cột phải dưới: tổng kết -->
+      <!-- (4) Tổng kết -->
       <section class="card" style="grid-column:2/3">
         <h2>4) Tổng kết & Xuất kết quả</h2>
         <table class="summary" id="summaryTable" aria-live="polite"></table>
         <div class="footer">
           <div class="toolbar">
+            <button id="shareBtn" class="btn">Tạo link xem (copy)</button>
             <button id="copyBtn" class="btn secondary" aria-label="Sao chép kết quả">Sao chép kết quả</button>
             <button id="csvBtn" class="btn secondary" aria-label="Tải file CSV">Tải CSV</button>
           </div>
           <div class="save-state" id="saveState" aria-live="polite">Đã lưu cục bộ.</div>
         </div>
       </section>
+
+      <!-- (5) Thông tin nhận tiền & VietQR -->
+      <section class="card" style="grid-column:1/3">
+        <h2>5) Thông tin nhận tiền & VietQR</h2>
+        <p class="caption">Chọn ngân hàng (lấy từ API VietQR), nhập STK & tên TK. Sau đó bấm QR ở bảng Tổng kết để tạo mã VietQR đúng số tiền.</p>
+        <div class="form-row">
+          <select id="bankSelect" aria-label="Ngân hàng thụ hưởng">
+            <option value="">— Chọn ngân hàng —</option>
+          </select>
+          <input id="accNo" class="input" placeholder="Số tài khoản (chỉ số)" aria-label="Số tài khoản" />
+        </div>
+        <div class="form-row" style="margin-top:8px">
+          <input id="accName" class="input" placeholder="Tên tài khoản (không dấu, IN HOA – tuỳ chọn)" aria-label="Tên tài khoản" />
+          <input id="addInfo" class="input" placeholder="Nội dung chuyển (<= 50 ký tự, không ký tự đặc biệt)" aria-label="Nội dung chuyển" />
+        </div>
+        <div class="toolbar" style="margin-top:10px">
+          <button id="testQR" class="btn secondary">Xem thử QR 10.000đ</button>
+          <span class="muted" id="bankStat">Đang tải ngân hàng…</span>
+        </div>
+      </section>
     </div>
 
-    <p class="hint" style="margin-top:16px">Lưu ý: Chia đều theo từng mục dựa trên số người tham gia mục đó. Làm tròn
-      hiển thị theo VND – nội bộ tính chính xác số thực.</p>
+    <p class="hint" style="margin-top:16px">Lưu ý: Chia đều theo từng mục dựa trên số người tham gia mục đó. Làm tròn hiển thị theo VND – nội bộ tính chính xác số thực.</p>
   </div>
 
-  <!-- a11y: role + aria-labelledby -->
+  <!-- Hướng dẫn -->
   <dialog id="howto" role="dialog" aria-modal="true" aria-labelledby="howtoTitle">
     <form method="dialog" style="margin:0">
       <div class="card" style="max-width:640px">
         <h2 id="howtoTitle">Hướng dẫn nhanh</h2>
         <ol style="margin:8px 0 12px; padding-left:18px">
           <li>Thêm <b>bạn bè</b> ở bước (1).</li>
-          <li>Tại (2), nhập <b>Tên mục</b>, <b>Số tiền</b> và <b>chọn người tham gia</b> rồi nhấn <b>Thêm mục</b>.</li>
-          <li>Ở (3) bạn có thể xoá/sửa từng mục.</li>
-          <li>Xem <b>Tổng kết</b> ở (4). Nhấn <b>Sao chép</b> hoặc <b>Tải CSV</b> để gửi cho mọi người.</li>
+          <li>Ở (2) nhập <b>Tên mục/Số tiền</b> & <b>chọn người tham gia</b> → <b>Thêm mục</b>.</li>
+          <li>Ở (4) bấm <b>QR</b> để tạo mã, <b>Đã trả</b> để đánh dấu, <b>Xoá nợ</b> để đưa về 0đ.</li>
+          <li>Khai báo phần (5) để QR hoạt động (Ngân hàng, STK, nội dung).</li>
+          <li>Dùng nút <b>Tạo link xem</b> để gửi cho bạn bè.</li>
         </ol>
         <div class="toolbar" style="justify-content:flex-end">
           <button class="btn secondary" aria-label="Đóng hướng dẫn">Đã hiểu</button>
@@ -558,375 +191,469 @@
     </form>
   </dialog>
 
+  <!-- Modal QR -->
+  <dialog id="qrDialog" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
+    <form method="dialog" style="margin:0">
+      <div class="card" style="max-width:560px">
+        <h2 id="qrTitle">QR thanh toán</h2>
+        <div id="qrInfo" class="muted" style="margin-bottom:8px"></div>
+        <div id="qrWrap" style="display:grid;place-items:center;padding:8px;border:1px dashed var(--soft);border-radius:12px;background:#fff"></div>
+        <div class="toolbar" style="margin-top:12px;justify-content:flex-end">
+          <button class="btn secondary">Đóng</button>
+          <a id="qrOpenLink" class="btn" target="_blank" rel="noopener">Mở ảnh QR</a>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
   <script>
-    ; (() => {
-      const $ = (sel, el = document) => el.querySelector(sel)
-      const $$ = (sel, el = document) => [...el.querySelectorAll(sel)]
-      const fmt = new Intl.NumberFormat('vi-VN')
-      const storeKey = 'split_friends_v1'
+  ;(()=>{
+    const $=(s,e=document)=>e.querySelector(s); const $$=(s,e=document)=>[...e.querySelectorAll(s)];
+    const fmt=new Intl.NumberFormat('vi-VN'); const storeKey='split_friends_v1';
 
-      const state = {
-        friends: [], // ["An","Bình",...]
-        items: []    // [{id,name,amount,participants:[name,...]}]
-      }
+    // ====== STATE ======
+    const state={ friends:[], items:[], paid:{}, waived:{},
+      bank:{ bin:'', code:'', shortName:'', name:'', accountNo:'', accountName:'', addInfo:'' },
+      banksCache:[] };
 
-      // ===== NEW: sort state for summary =====
-      let sortState = { by: 'name', dir: 'asc' } // 'name' | 'amount' ; 'asc' | 'desc'
+    let sortState={by:'name',dir:'asc'}; // for summary
+    let viewOnly=false;                  // bật khi mở bằng link #v=
+    let fromShared=false;                // đang hiển thị snapshot từ link
 
-      // Load from localStorage
-      function load() {
-        try {
-          const raw = localStorage.getItem(storeKey)
-          if (raw) {
-            const data = JSON.parse(raw)
-            if (Array.isArray(data.friends)) state.friends = data.friends
-            if (Array.isArray(data.items)) state.items = data.items
-          }
-        } catch (e) { console.warn('Load failed', e) }
-      }
-
-      function save() {
-        localStorage.setItem(storeKey, JSON.stringify(state))
-        const el = $('#saveState')
-        if (el) { el.textContent = 'Đã lưu cục bộ.'; el.style.opacity = 1; }
-        clearTimeout(save._t)
-        save._t = setTimeout(() => { if (el) { el.style.opacity = .6 } }, 1200)
-      }
-
-      // --- Friends UI ---
-      function renderFriends() {
-        const wrap = $('#friends')
-        wrap.innerHTML = ''
-        if (state.friends.length === 0) {
-          wrap.innerHTML = '<span class="badge">Chưa có bạn nào</span>'
-        } else {
-          state.friends.forEach(name => {
-            const chip = document.createElement('div')
-            chip.className = 'chip'
-            // a11y: x có role button + tabindex
-            chip.innerHTML = `<span>👤 ${escapeHtml(name)}</span> <span class="x" role="button" tabindex="0" aria-label="Xoá ${escapeAttr(name)}" title="Xoá" data-name="${escapeHtml(name)}">✕</span>`
-            wrap.appendChild(chip)
-          })
+    // ====== LOAD/SAVE ======
+    function load(){
+      try{ const raw=localStorage.getItem(storeKey);
+        if(raw){ const data=JSON.parse(raw);
+          state.friends = Array.isArray(data.friends)?data.friends:[];
+          state.items   = Array.isArray(data.items)?data.items:[];
+          state.paid    = data.paid||{};
+          state.waived  = data.waived||{};
+          state.bank    = Object.assign(state.bank, data.bank||{});
         }
-        // re-render participant selector & summary
-        renderParticipantSelector()
-        renderSummary()
+      }catch(e){ console.warn('Load failed',e); }
+    }
+    function save(){
+      const el=$('#saveState');
+      if(viewOnly){
+        if(el){ el.textContent='Bản chia sẻ (chỉ xem) – không lưu.'; el.style.opacity=1; }
+        return; // không ghi LocalStorage khi chỉ xem
       }
+      localStorage.setItem(storeKey, JSON.stringify(state));
+      if(el){ el.textContent='Đã lưu cục bộ.'; el.style.opacity=1; }
+      clearTimeout(save._t); save._t=setTimeout(()=>{ if(el){ el.style.opacity=.6 } },1200);
+    }
 
-      function addFriend(name) {
-        name = name.trim()
-        if (!name) { toast('Vui lòng nhập tên bạn'); $('#friendName').focus(); return }
-        if (state.friends.includes(name)) { toast('Tên đã tồn tại'); $('#friendName').focus(); return }
-        state.friends.push(name)
-        save(); renderFriends(); renderItems()
-        $('#friendName').value = ''
-        // ===== NEW: focus back to input after add =====
-        $('#friendName').focus()
+    // ====== FRIENDS UI ======
+    function renderFriends(){
+      const wrap=$('#friends'); wrap.innerHTML='';
+      if(state.friends.length===0){ wrap.innerHTML='<span class="badge">Chưa có bạn nào</span>'; }
+      else{
+        state.friends.forEach(name=>{
+          const chip=document.createElement('div'); chip.className='chip';
+          const xBtn = viewOnly ? '' : ` <span class="x" role="button" tabindex="0" aria-label="Xoá ${escAttr(name)}" title="Xoá" data-name="${esc(name)}">✕</span>`;
+          chip.innerHTML=`<span>👤 ${esc(name)}</span>${xBtn}`;
+          wrap.appendChild(chip);
+        });
       }
+      renderParticipantSelector(); renderSummary();
+    }
+    function addFriend(name){
+      if(viewOnly){ toast('Đang ở chế độ chỉ xem'); return; }
+      name=name.trim(); if(!name){ toast('Vui lòng nhập tên bạn'); $('#friendName').focus(); return; }
+      if(state.friends.includes(name)){ toast('Tên đã tồn tại'); $('#friendName').focus(); return; }
+      state.friends.push(name); save(); renderFriends(); renderItems(); $('#friendName').value=''; $('#friendName').focus();
+    }
+    function removeFriend(name){
+      if(viewOnly){ toast('Đang ở chế độ chỉ xem'); return; }
+      if(!confirm(`Xoá bạn "${name}"? Người này cũng sẽ bị gỡ khỏi các mục đã chọn.`)) return;
+      state.friends=state.friends.filter(n=>n!==name);
+      state.items.forEach(it=>{ it.participants=it.participants.filter(n=>n!==name); });
+      delete state.paid[name]; delete state.waived[name];
+      save(); renderFriends(); renderItems(); renderSummary();
+    }
 
-      function removeFriend(name) {
-        if (!confirm(`Xoá bạn "${name}"? Người này cũng sẽ bị gỡ khỏi các mục đã chọn.`)) return
-        state.friends = state.friends.filter(n => n !== name)
-        // Remove from participants in all items
-        state.items.forEach(it => {
-          it.participants = it.participants.filter(n => n !== name)
-        })
-        save(); renderFriends(); renderItems()
-      }
+    // ====== PARTICIPANTS ======
+    function renderParticipantSelector(){
+      const box=$('#participantSelect'); box.innerHTML='';
+      if(state.friends.length===0){ box.innerHTML='<span class="badge">Hãy thêm bạn ở bước (1)</span>'; return; }
+      state.friends.forEach(name=>{
+        const id='p_'+hash(name); const label=document.createElement('label');
+        label.innerHTML=`<input type="checkbox" id="${id}" value="${esc(name)}" ${viewOnly?'disabled':''}> <span>${esc(name)}</span>`;
+        box.appendChild(label);
+      });
+    }
+    function setAllParticipants(v){ if(viewOnly){ toast('Đang ở chế độ chỉ xem'); return; } $$('#participantSelect input[type="checkbox"]').forEach(cb=>cb.checked=v); }
 
-      // --- Participant selector ---
-      function renderParticipantSelector() {
-        const box = $('#participantSelect')
-        box.innerHTML = ''
-        if (state.friends.length === 0) {
-          box.innerHTML = '<span class="badge">Hãy thêm bạn ở bước (1)</span>'
-          return
-        }
-        state.friends.forEach(name => {
-          const id = 'p_' + hash(name)
-          const label = document.createElement('label')
-          label.innerHTML = `<input type="checkbox" id="${id}" value="${escapeHtml(name)}"> <span>${escapeHtml(name)}</span>`
-          box.appendChild(label)
-        })
-      }
-
-      function setAllParticipants(val) {
-        $$('#participantSelect input[type="checkbox"]').forEach(cb => cb.checked = val)
-      }
-
-      // --- Items ---
-      function addItem() {
-        const name = $('#itemName').value.trim() || `Mục #${state.items.length + 1}`
-        const amount = parseFloat($('#itemAmount').value)
-        const participants = $$('#participantSelect input:checked').map(cb => cb.value)
-        if (isNaN(amount) || amount <= 0) { toast('Nhập số tiền hợp lệ (>0)'); return }
-        if (participants.length === 0) { toast('Chọn ít nhất 1 người tham gia'); return }
-        const item = { id: uid(), name, amount, participants }
-        state.items.push(item)
-        save(); renderItems(); clearItemForm(); renderSummary()
-      }
-
-      function clearItemForm() {
-        $('#itemName').value = ''
-        $('#itemAmount').value = ''
-        setAllParticipants(false)
-      }
-
-      function renderItems() {
-        const list = $('#items')
-        const empty = $('#itemsEmpty')
-        list.innerHTML = ''
-        if (state.items.length === 0) { empty.style.display = 'block'; return }
-        empty.style.display = 'none'
-
-        state.items.forEach(it => {
-          const el = document.createElement('div')
-          el.className = 'item'
-          const per = it.participants.length ? it.amount / it.participants.length : 0
-          el.innerHTML = `
+    // ====== ITEMS ======
+    function addItem(){
+      if(viewOnly){ toast('Đang ở chế độ chỉ xem'); return; }
+      const name=$('#itemName').value.trim()||`Mục #${state.items.length+1}`;
+      const amount=parseFloat($('#itemAmount').value);
+      const participants=$$('#participantSelect input:checked').map(cb=>cb.value);
+      if(isNaN(amount)||amount<=0){ toast('Nhập số tiền hợp lệ (>0)'); return; }
+      if(participants.length===0){ toast('Chọn ít nhất 1 người tham gia'); return; }
+      state.items.push({id:uid(), name, amount, participants});
+      save(); renderItems(); clearItemForm(); renderSummary();
+    }
+    function clearItemForm(){ $('#itemName').value=''; $('#itemAmount').value=''; setAllParticipants(false); }
+    function renderItems(){
+      const list=$('#items'), empty=$('#itemsEmpty'); list.innerHTML='';
+      if(state.items.length===0){ empty.style.display='block'; return; } empty.style.display='none';
+      state.items.forEach(it=>{
+        const el=document.createElement('div'); el.className='item';
+        const per=it.participants.length? it.amount/it.participants.length:0;
+        const actions = viewOnly ? '' : `
+          <div class="item-actions" style="margin-top:10px">
+            <button class="btn secondary" data-edit="${it.id}" aria-label="Sửa mục ${escAttr(it.name)}">Sửa</button>
+            <button class="btn danger" data-del="${it.id}" aria-label="Xoá mục ${escAttr(it.name)}">Xoá</button>
+          </div>`;
+        el.innerHTML=`
           <div class="item-top">
             <div>
-              <div class="item-name">${escapeHtml(it.name)}</div>
-              <div class="muted">Tham gia: ${it.participants.map(escapeHtml).join(', ')}</div>
+              <div class="item-name">${esc(it.name)}</div>
+              <div class="muted">Tham gia: ${it.participants.map(esc).join(', ')}</div>
             </div>
             <div>
               <div class="item-amount">${fmt.format(it.amount)} đ</div>
               <div class="muted" style="text-align:right">~ ${fmt.format(per)} đ/người</div>
             </div>
           </div>
-          <div class="item-actions" style="margin-top:10px">
-            <button class="btn secondary" data-edit="${it.id}" aria-label="Sửa mục ${escapeAttr(it.name)}">Sửa</button>
-            <button class="btn danger" data-del="${it.id}" aria-label="Xoá mục ${escapeAttr(it.name)}">Xoá</button>
-          </div>
-        `
-          list.appendChild(el)
-        })
-      }
-
-      function deleteItem(id) {
-        state.items = state.items.filter(it => it.id !== id)
-        save(); renderItems(); renderSummary()
-      }
-
-      function editItem(id) {
-        const it = state.items.find(x => x.id === id)
-        if (!it) return
-        // Inline editor dialog (a11y: role, aria)
-        const dlg = document.createElement('dialog')
-        dlg.setAttribute('role', 'dialog')
-        dlg.setAttribute('aria-modal', 'true')
-        dlg.innerHTML = `
-        <form method="dialog" style="margin:0">
-          <div class="card" style="max-width:560px">
-            <h2 id="editTitle">Chỉnh sửa mục</h2>
-            <div class="form-row">
-              <input class="input" id="eName" value="${escapeAttr(it.name)}" aria-labelledby="editTitle" />
-              <input class="input" id="eAmount" type="number" min="0" step="1000" value="${it.amount}" aria-label="Số tiền VND"/>
-            </div>
-            <div style="margin-top:10px">
-              <div class="muted" style="margin-bottom:6px">Chọn người tham gia</div>
-              <div id="eParticipants" class="friend-select"></div>
-            </div>
-            <div class="toolbar" style="margin-top:12px;justify-content:flex-end">
-              <button class="btn secondary">Huỷ</button>
-              <button class="btn" value="ok">Lưu</button>
-            </div>
-          </div>
-        </form>
-      `
-        document.body.appendChild(dlg)
-        const box = $('#eParticipants', dlg)
-        state.friends.forEach(name => {
-          const idc = 'e_' + hash(name)
-          const checked = it.participants.includes(name) ? 'checked' : ''
-          const label = document.createElement('label')
-          label.innerHTML = `<input type="checkbox" id="${idc}" value="${escapeHtml(name)}" ${checked}> <span>${escapeHtml(name)}</span>`
-          box.appendChild(label)
-        })
-        dlg.showModal()
-        dlg.addEventListener('close', () => {
-          if (dlg.returnValue === 'ok') {
-            const newName = $('#eName', dlg).value.trim() || it.name
-            const newAmount = parseFloat($('#eAmount', dlg).value)
-            const newParticipants = $$('#eParticipants input:checked', dlg).map(cb => cb.value)
-            if (isNaN(newAmount) || newAmount <= 0 || newParticipants.length === 0) {
-              toast('Vui lòng nhập dữ liệu hợp lệ');
-            } else {
-              it.name = newName
-              it.amount = newAmount
-              it.participants = newParticipants
-              save(); renderItems(); renderSummary()
-            }
-          }
-          dlg.remove()
-        })
-      }
-
-      // --- Summary ---
-      function computeSummary() {
-        const totals = Object.fromEntries(state.friends.map(n => [n, 0]))
-        let grand = 0
-        for (const it of state.items) {
-          if (it.participants.length === 0) continue
-          const share = it.amount / it.participants.length
-          grand += it.amount
-          for (const name of it.participants) {
-            if (!(name in totals)) totals[name] = 0
-            totals[name] += share
-          }
+          ${actions}`;
+        list.appendChild(el);
+      });
+    }
+    function deleteItem(id){ if(viewOnly){ toast('Đang ở chế độ chỉ xem'); return; } state.items=state.items.filter(it=>it.id!==id); save(); renderItems(); renderSummary(); }
+    function editItem(id){
+      if(viewOnly){ toast('Đang ở chế độ chỉ xem'); return; }
+      const it=state.items.find(x=>x.id===id); if(!it) return;
+      const dlg=document.createElement('dialog'); dlg.setAttribute('role','dialog'); dlg.setAttribute('aria-modal','true');
+      dlg.innerHTML=`<form method="dialog" style="margin:0"><div class="card" style="max-width:560px">
+        <h2 id="editTitle">Chỉnh sửa mục</h2>
+        <div class="form-row">
+          <input class="input" id="eName" value="${escAttr(it.name)}" aria-labelledby="editTitle"/>
+          <input class="input" id="eAmount" type="number" min="0" step="1000" value="${it.amount}" aria-label="Số tiền VND"/>
+        </div>
+        <div style="margin-top:10px">
+          <div class="muted" style="margin-bottom:6px">Chọn người tham gia</div>
+          <div id="eParticipants" class="friend-select"></div>
+        </div>
+        <div class="toolbar" style="margin-top:12px;justify-content:flex-end">
+          <button class="btn secondary">Huỷ</button>
+          <button class="btn" value="ok">Lưu</button>
+        </div>
+      </div></form>`;
+      document.body.appendChild(dlg);
+      const box=$('#eParticipants',dlg);
+      state.friends.forEach(name=>{
+        const idc='e_'+hash(name); const checked=it.participants.includes(name)?'checked':'';
+        const label=document.createElement('label');
+        label.innerHTML=`<input type="checkbox" id="${idc}" value="${esc(name)}" ${checked}> <span>${esc(name)}</span>`;
+        box.appendChild(label);
+      });
+      dlg.showModal();
+      dlg.addEventListener('close', ()=>{
+        if(dlg.returnValue==='ok'){
+          const newName=$('#eName',dlg).value.trim()||it.name;
+          const newAmount=parseFloat($('#eAmount',dlg).value);
+          const newParticipants=$$('#eParticipants input:checked',dlg).map(cb=>cb.value);
+          if(isNaN(newAmount)||newAmount<=0||newParticipants.length===0) toast('Vui lòng nhập dữ liệu hợp lệ');
+          else{ it.name=newName; it.amount=newAmount; it.participants=newParticipants; save(); renderItems(); renderSummary(); }
         }
-        return { totals, grand }
+        dlg.remove();
+      });
+    }
+
+    // ====== SUMMARY ======
+    function computeSummary(){
+      const totals=Object.fromEntries(state.friends.map(n=>[n,0])); let grand=0;
+      for(const it of state.items){
+        if(it.participants.length===0) continue;
+        const share=it.amount/it.participants.length; grand+=it.amount;
+        for(const name of it.participants){ if(!(name in totals)) totals[name]=0; totals[name]+=share; }
       }
+      return {totals, grand};
+    }
+    function getEffectiveAmount(name, base){
+      if(state.waived[name]) return 0;
+      if(state.paid[name])  return 0;
+      return base;
+    }
+    function renderSummary(){
+      const tbl=$('#summaryTable'); const {totals,grand}=computeSummary();
+      const rows=Object.entries(totals);
+      if(state.friends.length===0){ tbl.innerHTML='<tr><td class="empty">Hãy thêm bạn bè để xem tổng kết</td></tr>'; return; }
+      if(rows.length===0){ tbl.innerHTML='<tr><td class="empty">Chưa có dữ liệu tổng kết</td></tr>'; return; }
 
-      function renderSummary() {
-        const tbl = $('#summaryTable')
-        const { totals, grand } = computeSummary()
-        const rows = Object.entries(totals) // [ [name, value], ... ]
+      rows.sort((a,b)=>{
+        if(sortState.by==='name'){ return sortState.dir==='asc' ? a[0].localeCompare(b[0]) : b[0].localeCompare(a[0]); }
+        const av=getEffectiveAmount(a[0],a[1]), bv=getEffectiveAmount(b[0],b[1]);
+        return sortState.dir==='asc' ? av-bv : bv-av;
+      });
 
-        if (state.friends.length === 0) {
-          tbl.innerHTML = '<tr><td class="empty">Hãy thêm bạn bè để xem tổng kết</td></tr>'
-          return
-        }
-        if (rows.length === 0) {
-          tbl.innerHTML = '<tr><td class="empty">Chưa có dữ liệu tổng kết</td></tr>'
-          return
-        }
+      const body=rows.map(([name,base])=>{
+        const val=getEffectiveAmount(name,base);
+        const badges=[
+          state.paid[name]  ? '<span class="badge">Đã trả</span>' : '',
+          state.waived[name]? '<span class="badge">Đã xoá nợ</span>' : ''
+        ].filter(Boolean).join(' ');
+        const sub = (state.paid[name]||state.waived[name]) ? `<div class="muted">Gốc: ${fmt.format(base)} đ</div>` : '';
+        const actionBtns = viewOnly
+          ? `<button class="btn secondary" data-qr="${escAttr(name)}">QR</button>`
+          : `<button class="btn secondary" data-qr="${escAttr(name)}">QR</button>
+             <button class="btn" data-paid="${escAttr(name)}">Đã trả</button>
+             <button class="btn danger" data-waive="${escAttr(name)}">Xoá nợ</button>`;
+        const undoBtn = (!viewOnly && (state.paid[name]||state.waived[name])) ? `<button class="btn secondary" data-undo="${escAttr(name)}">Hoàn tác</button>` : '';
+        return `<tr>
+          <td>${esc(name)} ${badges?`&nbsp;${badges}`:''}</td>
+          <td>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <strong>${fmt.format(val)} đ</strong>${sub}
+              ${actionBtns} ${undoBtn}
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
 
-        // ===== NEW: sorting rows by state =====
-        rows.sort((a, b) => {
-          if (sortState.by === 'name') {
-            return sortState.dir === 'asc' ? a[0].localeCompare(b[0]) : b[0].localeCompare(a[0])
-          } else {
-            // amount
-            return sortState.dir === 'asc' ? a[1] - b[1] : b[1] - a[1]
-          }
-        })
+      const nameArrow=sortState.by==='name'?(sortState.dir==='asc'?' ▲':' ▼'):''; 
+      const amountArrow=sortState.by==='amount'?(sortState.dir==='asc'?' ▲':' ▼'):'';
+      const nameAria=sortState.by==='name'?(sortState.dir==='asc'?'ascending':'descending'):'none';
+      const amountAria=sortState.by==='amount'?(sortState.dir==='asc'?'ascending':'descending'):'none';
 
-        const body = rows.map(([name, val]) => `<tr><td>${escapeHtml(name)}</td><td>${fmt.format(val)} đ</td></tr>`).join('')
-
-        const nameArrow = sortState.by === 'name' ? (sortState.dir === 'asc' ? ' ▲' : ' ▼') : ''
-        const amountArrow = sortState.by === 'amount' ? (sortState.dir === 'asc' ? ' ▲' : ' ▼') : ''
-
-        const nameAria = sortState.by === 'name' ? (sortState.dir === 'asc' ? 'ascending' : 'descending') : 'none'
-        const amountAria = sortState.by === 'amount' ? (sortState.dir === 'asc' ? 'ascending' : 'descending') : 'none'
-
-        tbl.innerHTML = `
-        <thead>
-          <tr>
-            <th class="sortable" data-sort="name" aria-sort="${nameAria}" scope="col">Người${nameArrow}</th>
-            <th class="sortable" data-sort="amount" aria-sort="${amountAria}" scope="col">Số tiền phải trả${amountArrow}</th>
-          </tr>
-        </thead>
+      tbl.innerHTML=`<thead>
+        <tr>
+          <th class="sortable" data-sort="name" aria-sort="${nameAria}" scope="col">Người${nameArrow}</th>
+          <th class="sortable" data-sort="amount" aria-sort="${amountAria}" scope="col">Số tiền phải trả${amountArrow}</th>
+        </tr></thead>
         <tbody>${body}</tbody>
-        <tfoot><tr><td>Tổng các mục</td><td>${fmt.format(grand)} đ</td></tr></tfoot>
-      `
+        <tfoot><tr><td>Tổng các mục</td><td>${fmt.format(grand)} đ</td></tr></tfoot>`;
+    }
+    function toggleSort(by){ if(sortState.by===by) sortState.dir=(sortState.dir==='asc'?'desc':'asc'); else{ sortState.by=by; sortState.dir='asc'; } renderSummary(); }
+    function copySummary(){
+      const {totals,grand}=computeSummary();
+      const lines=['Tổng kết chia tiền:',
+        ...Object.entries(totals).map(([n,v])=>{
+          const eff=getEffectiveAmount(n,v);
+          const status=state.paid[n]?' (đã trả)':(state.waived[n]?' (đã xoá nợ)':'');
+          return `- ${n}: ${fmt.format(eff)} đ${status}${eff!==v?` [gốc ${fmt.format(v)}]`:''}`;
+        }),
+        `Tổng các mục: ${fmt.format(grand)} đ`];
+      navigator.clipboard.writeText(lines.join('\n')).then(()=>toast('Đã sao chép'),()=>toast('Không thể sao chép'));
+    }
+    function pad(n){ return String(n).padStart(2,'0'); }
+    function downloadCSV(){
+      const {totals,grand}=computeSummary();
+      const rows=[['Tên','Số tiền (VND)','Trạng thái','Gốc (VND)']];
+      for(const [n,base] of Object.entries(totals)){
+        const eff=getEffectiveAmount(n,base);
+        const status= state.paid[n]?'Đã trả':(state.waived[n]?'Đã xoá nợ':'');
+        rows.push([n, Math.round(eff), status, Math.round(base)]);
       }
+      rows.push(['Tổng', Math.round(grand), '', '']);
+      const csv=rows.map(r=>r.map(x=>'"'+String(x).replaceAll('"','""')+'"').join(',')).join('\n');
+      const blob=new Blob(["\ufeff"+csv],{type:'text/csv;charset=utf-8'});
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+      const d=new Date(); a.download=`tong-ket-chia-tien_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}.csv`;
+      a.click(); URL.revokeObjectURL(a.href);
+    }
 
-      function toggleSort(by) {
-        if (sortState.by === by) {
-          sortState.dir = (sortState.dir === 'asc') ? 'desc' : 'asc'
-        } else {
-          sortState.by = by
-          sortState.dir = 'asc'
-        }
-        renderSummary()
+    // ====== VIETQR (banks + QR) ======
+    const API_BANKS='https://api.vietqr.io/v2/banks'; const LS_BANKS='vietqr_banks_v2'; const LS_AT='vietqr_banks_cached_at'; const ONE_DAY=24*60*60*1000;
+    async function loadBanks(force=false){
+      const stat=$('#bankStat'); try{
+        if(!force){ const cached=localStorage.getItem(LS_BANKS); const at=Number(localStorage.getItem(LS_AT)||0);
+          if(cached && Date.now()-at<ONE_DAY){ state.banksCache=JSON.parse(cached); renderBankSelect(); if(stat) stat.textContent=`Đang dùng cache (${state.banksCache.length} NH)`; return; } }
+        const res=await fetch(API_BANKS,{headers:{'Accept':'application/json'}}); if(!res.ok) throw new Error('HTTP '+res.status);
+        const json=await res.json(); if(json&&Array.isArray(json.data)){ state.banksCache=json.data; localStorage.setItem(LS_BANKS,JSON.stringify(state.banksCache)); localStorage.setItem(LS_AT,String(Date.now())); renderBankSelect(); if(stat) stat.textContent=`Đã tải (${state.banksCache.length} NH)`; }
+        else throw new Error('Sai định dạng');
+      }catch(e){ console.error(e); if(stat) stat.textContent='Lỗi tải ngân hàng'; }
+    }
+    function renderBankSelect(){
+      const sel=$('#bankSelect'); const opts=['<option value="">— Chọn ngân hàng —</option>'].concat(
+        state.banksCache.map(b=>{
+          const selected = (state.bank.bin && state.bank.bin==b.bin)?'selected':'';
+          return `<option value="${b.bin}" data-code="${escAttr(b.code||'')}" data-short="${escAttr(b.shortName||'')}" data-name="${escAttr(b.name||'')}" ${selected}>${b.shortName||b.code||b.name} — ${b.bin}</option>`;
+        })
+      );
+      sel.innerHTML=opts.join('');
+      // restore inputs
+      $('#accNo').value = state.bank.accountNo||'';
+      $('#accName').value = state.bank.accountName||'';
+      $('#addInfo').value = state.bank.addInfo||'';
+      // disable inputs if view-only
+      sel.disabled=viewOnly; $('#accNo').disabled=viewOnly; $('#accName').disabled=viewOnly; $('#addInfo').disabled=viewOnly; $('#testQR').disabled=viewOnly;
+    }
+    function saveBankFromUI(){
+      if(viewOnly) return;
+      const opt=$('#bankSelect').selectedOptions[0];
+      state.bank.bin = $('#bankSelect').value||'';
+      state.bank.code = opt? opt.getAttribute('data-code') : '';
+      state.bank.shortName = opt? opt.getAttribute('data-short') : '';
+      state.bank.name = opt? opt.getAttribute('data-name') : '';
+      state.bank.accountNo = $('#accNo').value.trim();
+      state.bank.accountName = $('#accName').value.trim();
+      state.bank.addInfo = $('#addInfo').value.trim();
+      save();
+    }
+    function makeQuickLink(amount, payerName=''){
+      const bankId = state.bank.bin || state.bank.code || state.bank.shortName;
+      const accNo = (state.bank.accountNo||'').replace(/\s+/g,'');
+      if(!bankId||!accNo){ throw new Error('Chưa chọn ngân hàng/STK'); }
+      let addInfo = (state.bank.addInfo || `CHI A ${payerName}` || '').normalize("NFKD").replace(/[^\w\s-]/g,'');
+      if(addInfo.length>50) addInfo = addInfo.slice(0,50);
+      const params = new URLSearchParams();
+      if(amount>0) params.set('amount', Math.round(amount));
+      if(addInfo) params.set('addInfo', addInfo);
+      if(state.bank.accountName){ params.set('accountName', state.bank.accountName); }
+      const template='compact2';
+      const url=`https://img.vietqr.io/image/${encodeURIComponent(bankId)}-${encodeURIComponent(accNo)}-${template}.png${params.toString()?('?'+params.toString()):''}`;
+      return url;
+    }
+    function openQR(amount, name){
+      try{
+        const url = makeQuickLink(amount, name);
+        $('#qrTitle').textContent='QR thanh toán';
+        $('#qrInfo').innerHTML = `Người trả: <b>${esc(name)}</b> • Số tiền: <b>${fmt.format(Math.round(amount))} đ</b>`;
+        const wrap=$('#qrWrap'); wrap.innerHTML='';
+        const img=new Image(); img.alt='VietQR'; img.style.maxWidth='100%'; img.style.height='auto'; img.src=url;
+        wrap.appendChild(img);
+        const a=$('#qrOpenLink'); a.href=url;
+        $('#qrDialog').showModal();
+      }catch(e){ toast(e.message || 'Thiếu thông tin VietQR'); }
+    }
+
+    // ====== SHARE LINK (VIEW-ONLY) ======
+    function toB64Url(str){
+      const b64 = btoa(unescape(encodeURIComponent(str)));
+      return b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    }
+    function fromB64Url(s){
+      s = s.replace(/-/g,'+').replace(/_/g,'/');
+      const pad = s.length % 4 ? 4 - (s.length % 4) : 0;
+      s = s + '='.repeat(pad);
+      const json = decodeURIComponent(escape(atob(s)));
+      return json;
+    }
+    function buildShareObject(){
+      return {
+        version:1,
+        friends: state.friends,
+        items: state.items,
+        paid: state.paid,
+        waived: state.waived,
+        bank: state.bank
+      };
+    }
+    function makeShareLink(){
+      const base = location.origin + location.pathname;
+      const payload = toB64Url(JSON.stringify(buildShareObject()));
+      return `${base}#v=${payload}`;
+    }
+    function copyShareLink(){
+      const link = makeShareLink();
+      navigator.clipboard.writeText(link).then(()=>toast('Đã copy liên kết xem'),()=>{ prompt('Copy liên kết này:', link); });
+    }
+    function adoptSharedToLocal(){
+      // Ghi snapshot hiện tại vào LocalStorage để chỉnh sửa
+      localStorage.setItem(storeKey, JSON.stringify(buildShareObject()));
+      location.hash=''; viewOnly=false; fromShared=false;
+      $('#viewBanner').style.display='none';
+      save(); renderAll();
+      toast('Đã lưu bản này vào trình duyệt – có thể chỉnh sửa');
+    }
+    function enterViewMode(shared){
+      // Gán state từ snapshot, KHÔNG lưu local
+      state.friends = Array.isArray(shared.friends)?shared.friends:[];
+      state.items   = Array.isArray(shared.items)?shared.items:[];
+      state.paid    = shared.paid||{};
+      state.waived  = shared.waived||{};
+      state.bank    = Object.assign(state.bank, shared.bank||{});
+      viewOnly=true; fromShared=true;
+      $('#viewBanner').style.display='block';
+      // Khoá các input
+      $('#friendName').disabled=true; $('#addFriendBtn').disabled=true; $('#clearAllBtn').disabled=true;
+      $('#itemName').disabled=true; $('#itemAmount').disabled=true; $('#addItemBtn').disabled=true;
+      $('#selectAllBtn').disabled=true; $('#selectNoneBtn').disabled=true;
+      renderAll();
+    }
+
+    // ====== UTILS ======
+    function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+    function hash(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h<<5)-h+s.charCodeAt(i); h|=0; } return Math.abs(h); }
+    function esc(s){ return String(s).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function escAttr(s){ return esc(s).replace(/\n/g,' '); }
+    function toast(msg){ const t=document.createElement('div'); t.textContent=msg;
+      Object.assign(t.style,{position:'fixed',left:'50%',bottom:'22px',transform:'translateX(-50%)',background:'linear-gradient(90deg,var(--accent),var(--accent-2))',color:'#fff',padding:'10px 14px',borderRadius:'12px',boxShadow:'var(--shadow)',fontSize:'14px',zIndex:9999});
+      document.body.appendChild(t); setTimeout(()=>{ t.style.transition='opacity .4s'; t.style.opacity='0'; setTimeout(()=>t.remove(),400); },1100);
+    }
+
+    function renderAll(){ renderFriends(); renderItems(); renderSummary(); renderBankSelect(); }
+
+    // ====== EVENTS ======
+    // Friends
+    $('#addFriendBtn').addEventListener('click',()=>addFriend($('#friendName').value));
+    $('#friendName').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); addFriend($('#friendName').value);} });
+    $('#clearAllBtn').addEventListener('click',()=>{
+      if(viewOnly){ toast('Đang ở chế độ chỉ xem'); return; }
+      if(confirm('Xoá toàn bộ bạn bè, mục và tổng kết?')){ state.friends=[]; state.items=[]; state.paid={}; state.waived={}; save(); renderAll(); $('#friendName').focus(); }
+    });
+    $('#friends').addEventListener('click',e=>{ const x=e.target.closest('.x'); if(x){ removeFriend(x.getAttribute('data-name')); } });
+    $('#friends').addEventListener('keydown',e=>{ const x=e.target.closest('.x'); if(x&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); removeFriend(x.getAttribute('data-name')); } });
+
+    // Items
+    $('#addItemBtn').addEventListener('click',addItem);
+    $('#selectAllBtn').addEventListener('click',()=>setAllParticipants(true));
+    $('#selectNoneBtn').addEventListener('click',()=>setAllParticipants(false));
+    $('#items').addEventListener('click',e=>{
+      const del=e.target.closest('[data-del]'); const edit=e.target.closest('[data-edit]');
+      if(del) deleteItem(del.getAttribute('data-del')); if(edit) editItem(edit.getAttribute('data-edit'));
+    });
+
+    // Summary actions & sorting
+    $('#summaryTable').addEventListener('click',e=>{
+      const th=e.target.closest('.sortable'); if(th){ toggleSort(th.getAttribute('data-sort')); return; }
+      const btnQr=e.target.closest('[data-qr]'); if(btnQr){
+        const name=btnQr.getAttribute('data-qr'); const {totals}=computeSummary(); const base=totals[name]||0; const amount=getEffectiveAmount(name,base);
+        if(amount<=0){ toast('Số tiền bằng 0'); return; } openQR(amount,name); return;
       }
+      if(viewOnly) return;
+      const btnPaid=e.target.closest('[data-paid]'); if(btnPaid){ const n=btnPaid.getAttribute('data-paid'); state.paid[n]=true; delete state.waived[n]; save(); renderSummary(); return; }
+      const btnWaive=e.target.closest('[data-waive]'); if(btnWaive){ const n=btnWaive.getAttribute('data-waive'); state.waived[n]=true; delete state.paid[n]; save(); renderSummary(); return; }
+      const btnUndo=e.target.closest('[data-undo]'); if(btnUndo){ const n=btnUndo.getAttribute('data-undo'); delete state.paid[n]; delete state.waived[n]; save(); renderSummary(); return; }
+    });
 
-      function copySummary() {
-        const { totals, grand } = computeSummary()
-        const lines = ['Tổng kết chia tiền:', ...Object.entries(totals).map(([n, v]) => `- ${n}: ${fmt.format(v)} đ`), `Tổng các mục: ${fmt.format(grand)} đ`]
-        navigator.clipboard.writeText(lines.join('\n')).then(() => toast('Đã sao chép')), () => toast('Không thể sao chép')
+    $('#copyBtn').addEventListener('click',copySummary);
+    $('#csvBtn').addEventListener('click',downloadCSV);
+    $('#shareBtn').addEventListener('click',copyShareLink);
+
+    // Help
+    $('#howtoLink').addEventListener('click',e=>{ e.preventDefault(); $('#howto').showModal(); });
+
+    // VietQR form
+    $('#bankSelect').addEventListener('change',()=>{ saveBankFromUI(); });
+    $('#accNo').addEventListener('input',saveBankFromUI);
+    $('#accName').addEventListener('input',saveBankFromUI);
+    $('#addInfo').addEventListener('input',saveBankFromUI);
+    $('#testQR').addEventListener('click',()=>{ if(viewOnly){ toast('Đang ở chế độ chỉ xem'); return; } openQR(10000,'TEST') });
+
+    // Banner buttons
+    $('#shareCopyBtn2').addEventListener('click',()=>{ const link = location.href; navigator.clipboard.writeText(link).then(()=>toast('Đã copy liên kết'),()=>{ prompt('Copy liên kết này:', link); }); });
+    $('#adoptBtn').addEventListener('click',adoptSharedToLocal);
+
+    // INIT
+    // Nếu có #v=… → vào chế độ xem
+    const m = location.hash.match(/^#v=([A-Za-z0-9\-_]+)/);
+    if(m){
+      try{
+        const obj = JSON.parse(fromB64Url(m[1]));
+        enterViewMode(obj);
+      }catch(err){
+        console.error(err); toast('Liên kết không hợp lệ'); load(); renderAll();
       }
-
-      function pad(n) { return String(n).padStart(2, '0') }
-
-      function downloadCSV() {
-        const { totals, grand } = computeSummary()
-        const rows = [['Tên', 'Số tiền (VND)'], ...Object.entries(totals).map(([n, v]) => [n, Math.round(v)])]
-        rows.push(['Tổng', Math.round(grand)])
-        const csv = rows.map(r => r.map(x => '"' + String(x).replaceAll('"', '""') + '"').join(',')).join('\n')
-        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8' })
-        const a = document.createElement('a')
-        a.href = URL.createObjectURL(blob)
-        // ===== NEW: filename with date-time =====
-        const d = new Date()
-        const fname = `tong-ket-chia-tien_${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}.csv`
-        a.download = fname
-        a.click()
-        URL.revokeObjectURL(a.href)
-      }
-
-      // --- Utils ---
-      function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8) }
-      function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0 } return Math.abs(h) }
-      function escapeHtml(s) { return s.replace(/[&<>\"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', '\'': '&#39;' }[c])) }
-      function escapeAttr(s) { return escapeHtml(s).replace(/\n/g, ' ') }
-
-      function toast(msg) {
-        const t = document.createElement('div')
-        t.textContent = msg
-        Object.assign(t.style, { position: 'fixed', left: '50%', bottom: '22px', transform: 'translateX(-50%)', background: '#0b0', color: '#fff', padding: '10px 14px', borderRadius: '12px', boxShadow: 'var(--shadow)', fontSize: '14px', zIndex: 9999, background: 'linear-gradient(90deg, var(--accent), var(--accent-2))' })
-        document.body.appendChild(t)
-        setTimeout(() => { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 400) }, 1100)
-      }
-
-      // --- Events ---
-      $('#addFriendBtn').addEventListener('click', () => addFriend($('#friendName').value))
-      $('#friendName').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addFriend($('#friendName').value) } })
-      $('#clearAllBtn').addEventListener('click', () => {
-        if (confirm('Xoá toàn bộ bạn bè, mục và tổng kết?')) {
-          state.friends = []; state.items = []; save(); renderFriends(); renderItems(); renderSummary();
-          $('#friendName').focus()
-        }
-      })
-
-      $('#addItemBtn').addEventListener('click', addItem)
-      $('#selectAllBtn').addEventListener('click', () => setAllParticipants(true))
-      $('#selectNoneBtn').addEventListener('click', () => setAllParticipants(false))
-
-      $('#items').addEventListener('click', (e) => {
-        const del = e.target.closest('[data-del]')
-        const edit = e.target.closest('[data-edit]')
-        if (del) { deleteItem(del.getAttribute('data-del')) }
-        if (edit) { editItem(edit.getAttribute('data-edit')) }
-      })
-
-      // a11y: remove friend via click OR Enter/Space
-      $('#friends').addEventListener('click', (e) => {
-        const x = e.target.closest('.x')
-        if (x) { removeFriend(x.getAttribute('data-name')) }
-      })
-      $('#friends').addEventListener('keydown', (e) => {
-        const x = e.target.closest('.x')
-        if (x && (e.key === 'Enter' || e.key === ' ')) {
-          e.preventDefault()
-          removeFriend(x.getAttribute('data-name'))
-        }
-      })
-
-      $('#copyBtn').addEventListener('click', copySummary)
-      $('#csvBtn').addEventListener('click', downloadCSV)
-
-      $('#howtoLink').addEventListener('click', (e) => { e.preventDefault(); $('#howto').showModal() })
-
-      // ===== NEW: header click to sort =====
-      $('#summaryTable').addEventListener('click', (e) => {
-        const th = e.target.closest('.sortable')
-        if (!th) return
-        const by = th.getAttribute('data-sort')
-        toggleSort(by)
-      })
-
-      // Initial
-      load();
-      renderFriends();
-      renderItems();
-      renderSummary();
-      // Focus ngay ô nhập bạn để thao tác nhanh
-      $('#friendName').focus()
-
-    })()
+    }else{
+      load(); renderAll(); $('#friendName').focus();
+    }
+    loadBanks(); // tải danh sách ngân hàng từ VietQR
+  })();
   </script>
 </body>
-
 </html>
